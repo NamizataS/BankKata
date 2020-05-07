@@ -58,20 +58,57 @@ public class Bank {
 
     public void createNewAccount(String name, int balance, int threshold) {
         // TODO
+        try( Statement s = c.createStatement()) {
+            s.executeUpdate("INSERT INTO " + TABLE_NAME + " " + " (name, balance, threshold,locked)" + " VALUES" + " ('"+name+"','"+balance+"','"+threshold+"',false )"); //query sql to create an account
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public String printAllAccounts() {
         // TODO
+        String query = "SELECT * FROM "+TABLE_NAME; //the query
+        String result = "";
+        try( PreparedStatement s = c.prepareStatement(query)) {
+            ResultSet r = s.executeQuery();
+            while (r.next()) {//checking if there's no more lines
+                result += new Account(r.getString(1), r.getInt(2), r.getInt(3),r.getBoolean(4)).toString(); //getting the string
 
-        return "";
+            }
+        } catch (Exception e ) {
+            System.out.println(e.getMessage());
+        }
+
+        return result; //printing the result
     }
 
     public void changeBalanceByName(String name, int balanceModifier) {
         // TODO
+        String query = "SELECT balance FROM "+TABLE_NAME+" "+"WHERE name= "+name; //query to get the balance
+        try( PreparedStatement s = c.prepareStatement(query) ) {
+            ResultSet r = s.executeQuery();
+            while (r.next()) {
+                try(Statement m = c.createStatement()) {
+                    m.executeUpdate("UPDATE "+ TABLE_NAME + " SET "+"balanceModifier= "+balanceModifier); //update the balance
+                }
+                catch (Exception e ){
+                    System.out.println(e.getMessage());
+                }
+            }
+        } catch (Exception e ){
+            System.out.println(e.getMessage());
+        }
+
+
     }
 
     public void blockAccount(String name) {
         // TODO
+        try(Statement s = c.createStatement()) {
+            s.executeUpdate("UPDATE "+ TABLE_NAME + " SET " + " locked = true WHERE name = '"+name+"'"); //block the account with the name
+        } catch ( Exception e ) {
+            System.out.println( e.getMessage());
+        }
     }
 
     // For testing purpose
